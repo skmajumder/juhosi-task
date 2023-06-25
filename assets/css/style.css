@@ -1,0 +1,14 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 400;
+}
+
+label {
+    cursor: pointer;
+}
+
+.registrationForm {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}

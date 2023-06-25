@@ -44,6 +44,11 @@ function token_generator()
     return $token = $_SESSION['token'];
 }
 
+function send_email($email, $subject, $message, $headers)
+{
+    return mail($email, $subject, $message, $headers);
+}
+
 function email_exists($email)
 {
     $sql = "SELECT id FROM users WHERE email = '$email'";
@@ -62,7 +67,10 @@ function username_exists($user_name)
     else return false;
 }
 
-/** Validate register user */
+/**
+ * @return void
+ * Validate register user
+ */
 
 function validate_user_registration()
 {
@@ -105,8 +113,45 @@ function validate_user_registration()
         if (!empty($errors)) {
             foreach ($errors as $error) {
                 echo validation_errors($error);
-                return;
+            }
+        } else {
+            if (register_user($user_name, $email, $password)) {
+                set_message('Register successfully');
+            } else {
+                set_message("Sorry! User Registration is Failed.");
             }
         }
     }
+}
+
+function register_user($user_name, $email, $password)
+{
+    $esc_username = escape_sql($user_name);
+    $esc_email = escape_sql($email);
+    $esc_password = escape_sql($password);
+
+    if (email_exists($esc_email) || username_exists($esc_username)) {
+        return false;
+    }
+
+    $encryptedPassword = md5($esc_password);
+    $validation_code = md5($email . microtime());
+
+    /** validation complete, now inserting user data into DB */
+    $sql = "INSERT INTO users(username, password, email, role, validation_code, active)";
+    $sql .= " VALUES('$esc_username', '$encryptedPassword', '$esc_email', 'customer', '$validation_code', 0)";
+
+    $result = query($sql);
+    confirm($result);
+//    TODO: Complete email activation
+//    $subject = "Activate your Account.";
+//    $message = "
+//            Hi,
+//            - Your Registration has been complete, Now active your account.
+//            - Go to http://localhost/project-site/activate.php?email=$esc_email&code=$validation_code
+//        ";
+//    $headers = "From: noreply@yourwebsite.com";
+//    send_email($esc_email, $subject, $message, $headers);
+
+    return true;
 }

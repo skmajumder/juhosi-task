@@ -4,7 +4,7 @@
   "description": "Juhosi Software Web Development Assignment Task",
   "main": "index.js",
   "scripts": {
-    "start": "browser-sync start --proxy localhost/juhosi-task --files *.html *.php  --browser chrome",
+    "start": "browser-sync start --proxy http://localhost/juhosi-task --files *.php --browser chrome",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

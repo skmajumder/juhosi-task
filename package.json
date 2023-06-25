@@ -1,0 +1,19 @@
+{
+  "name": "juhosi-software-web-development-assignment",
+  "version": "1.0.0",
+  "description": "Juhosi Software Web Development Assignment Task",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skmajumder/juhosi-task.git"
+  },
+  "author": "Shuvo Kumar Majumder",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/skmajumder/juhosi-task/issues"
+  },
+  "homepage": "https://github.com/skmajumder/juhosi-task#readme"
+}

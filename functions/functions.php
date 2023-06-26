@@ -67,6 +67,15 @@ function username_exists($user_name)
     else return false;
 }
 
+function get_logged_in()
+{
+    if (isset($_SESSION['username']) || isset($_COOKIE['username'])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /**
  * @return void
  * Validate register user
@@ -183,6 +192,83 @@ function activate_user()
         } else {
             set_message("<h3>Error! User Activation failed</h3>");
             redirect("register.php");
+        }
+    }
+}
+
+function validate_user_login()
+{
+    $errors = [];
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        $username = clean($_POST['username']);
+        $password = clean($_POST['password']);
+        $remember = isset($_POST['remember']);
+
+        if (empty($username)) {
+            $errors[] = "<span class='server_error_message'>Username Can&acute;t be Empty.</span>";
+        }
+        if (empty($password)) {
+            $errors[] = "<span class='server_error_message'>Password Can&acute;t be Empty.</span>";
+        }
+
+        if (!empty($errors)) {
+            foreach ($errors as $error) echo validation_errors($error);
+        } else {
+            if (login_user($username, $password, $remember)) {
+                login_user_profile_redirect();
+            } else {
+                set_message("<h3>Error! User login failed</h3>");
+            }
+        }
+    }
+}
+
+function login_user($username, $password, $remember)
+{
+    $esc_username = escape_sql($username);
+    $esc_password = escape_sql($password);
+    $esc_remember = escape_sql($remember);
+
+    if (!username_exists($esc_username)) {
+        return false;
+    }
+
+    $sql = "SELECT id, password FROM users WHERE username = '$esc_username' AND active = 1 AND validation_code = 0";
+    $result = query($sql);
+    confirm($result);
+    if (row_count($result) == 1) {
+        $row = fetch_array($result);
+        $db_password = $row['password'];
+        if (md5($esc_password) === $db_password) {
+            $_SESSION['username'] = $esc_username;
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+function login_user_profile_redirect()
+{
+    if (get_logged_in()) {
+        $sql = "SELECT role FROM users WHERE username = '" . escape_sql($_SESSION['username']) . "' AND active = 1 AND validation_code = 0";
+        $result = query($sql);
+        confirm($result);
+
+        if (row_count($result) == 1) {
+            $row = fetch_array($result);
+            $userRole = $row['role'];
+            $_SESSION['logged_id'] = $row['id'];
+            $_SESSION['userRole'] = $row['role'];
+
+            if ($userRole === 'admin') {
+                redirect('admin.php');
+            }
+            if ($userRole === 'customer') {
+                redirect('customer.php');
+            }
         }
     }
 }

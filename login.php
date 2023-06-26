@@ -20,11 +20,42 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2 py-2 text-center">
-                <?php display_message(); ?>
+                <?php
+                validate_user_login();
+                display_message();
+                ?>
             </div>
         </div>
     </div>
 </section>
+
+<section class="section section-login">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 py-5">
+                <div class="loginForm p-5">
+                    <form method="post" onsubmit="return validateForm()">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">ID (Username):</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password:</label>
+                            <input type="password" class="form-control" minlength="6" id="password" name="password"
+                                   required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">Remember Me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 <!-- Footer -->
 <?php include('./includes/footer.php'); ?>

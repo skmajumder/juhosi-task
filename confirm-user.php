@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="mt-4 p-5 bg-light rounded">
-                    <h1>Login page</h1>
+                    <h1>User Confirm</h1>
                 </div>
             </div>
         </div>

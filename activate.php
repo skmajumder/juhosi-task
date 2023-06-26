@@ -9,18 +9,22 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="mt-4 p-5 bg-light rounded">
-                    <h1>Login page</h1>
+                    <h1>Active User</h1>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section register-info">
+<section class="section">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 offset-lg-2 py-2 text-center">
-                <?php display_message(); ?>
+            <div class="col-lg-8 offset-lg-2 mt-4 text-center">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <h4><?php activate_user(); ?></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <p><a href="login.php" class="btn btn-primary btn-lg">Login</a></p>
             </div>
         </div>
     </div>

@@ -19,8 +19,9 @@
 <section class="section register-info">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 offset-lg-2 py-2 text-center">
+            <div class="col-lg-8 offset-lg-2 mt-4 text-center">
                 <?php validate_user_registration(); ?>
+                <?php display_message(); ?>
             </div>
         </div>
     </div>

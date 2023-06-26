@@ -116,9 +116,11 @@ function validate_user_registration()
             }
         } else {
             if (register_user($user_name, $email, $password)) {
-                set_message('Register successfully');
+                set_message('<div class="alert alert-success" role="alert">Registration Successful. Please Check Your Email for Activation Link</div>');
+                redirect("confirm-user.php");
             } else {
-                set_message("Sorry! User Registration is Failed.");
+                set_message('<div class="alert alert-danger" role="alert">Sorry! User Registration is Failed</div>');
+                redirect("failed-user.php");
             }
         }
     }
@@ -148,10 +150,39 @@ function register_user($user_name, $email, $password)
 //    $message = "
 //            Hi,
 //            - Your Registration has been complete, Now active your account.
-//            - Go to http://localhost/project-site/activate.php?email=$esc_email&code=$validation_code
+//            - Go to http://localhost/juhosi-task/activate.php?email=$esc_email&code=$validation_code
 //        ";
 //    $headers = "From: noreply@yourwebsite.com";
 //    send_email($esc_email, $subject, $message, $headers);
 
     return true;
+}
+
+function activate_user()
+{
+    if ($_SERVER['REQUEST_METHOD'] == "GET") {
+        if (isset($_GET['email']) && isset($_GET['code'])) {
+            $email = clean($_GET['email']);
+            $validation_code = clean($_GET['code']);
+            $esc_email = escape_sql($email);
+            $esc_validation_code = escape_sql($validation_code);
+
+            $sql = "SELECT id FROM users WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
+            $result = query($sql);
+            confirm($result);
+            if (row_count($result) == 1) {
+                $sql_2 = "UPDATE users SET active = 1, validation_code = 0 WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
+                $result_2 = query($sql_2);
+                confirm($result_2);
+                set_message("<h3>Account has been activated.</h3>");
+                redirect("login.php");
+            } else {
+                set_message("<h3>Error! User Activation failed</h3>");
+                redirect("register.php");
+            }
+        } else {
+            set_message("<h3>Error! User Activation failed</h3>");
+            redirect("register.php");
+        }
+    }
 }

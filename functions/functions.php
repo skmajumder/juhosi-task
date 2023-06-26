@@ -244,6 +244,12 @@ function login_user($username, $password, $remember)
         if (md5($esc_password) === $db_password) {
             $_SESSION['username'] = $esc_username;
             $_SESSION['userID'] = $useID;
+
+            if ($esc_remember == "on") {
+                // Set cookie for 7 days
+                setcookie('username', $esc_username, time() + (7 * 24 * 60 * 60), '/', '', false, true);
+                $_COOKIE['username'] = $esc_username;
+            }
             return true;
         } else {
             return false;

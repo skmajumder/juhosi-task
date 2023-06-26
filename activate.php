@@ -22,6 +22,7 @@
             <div class="col-lg-8 offset-lg-2 mt-4 text-center">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <h4><?php activate_user(); ?></h4>
+                    <?php display_message(); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 <p><a href="login.php" class="btn btn-primary btn-lg">Login</a></p>

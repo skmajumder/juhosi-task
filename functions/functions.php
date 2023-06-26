@@ -51,7 +51,7 @@ function send_email($email, $subject, $message, $headers)
 
 function email_exists($email)
 {
-    $sql = "SELECT id FROM users WHERE email = '$email'";
+    $sql = "SELECT id FROM auth WHERE email = '$email'";
     $result = query($sql);
     confirm($result);
     if (row_count($result) == 1) return true;
@@ -60,7 +60,7 @@ function email_exists($email)
 
 function username_exists($user_name)
 {
-    $sql = "SELECT id FROM users WHERE username = '$user_name'";
+    $sql = "SELECT id FROM auth WHERE username = '$user_name'";
     $result = query($sql);
     confirm($result);
     if (row_count($result) == 1) return true;
@@ -149,7 +149,7 @@ function register_user($user_name, $email, $password)
     $validation_code = md5($email . microtime());
 
     /** validation complete, now inserting user data into DB */
-    $sql = "INSERT INTO users(username, password, email, role, validation_code, active)";
+    $sql = "INSERT INTO auth(username, password, email, role, validation_code, active)";
     $sql .= " VALUES('$esc_username', '$encryptedPassword', '$esc_email', 'customer', '$validation_code', 0)";
 
     $result = query($sql);
@@ -176,11 +176,11 @@ function activate_user()
             $esc_email = escape_sql($email);
             $esc_validation_code = escape_sql($validation_code);
 
-            $sql = "SELECT id FROM users WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
+            $sql = "SELECT id FROM auth WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
             $result = query($sql);
             confirm($result);
             if (row_count($result) == 1) {
-                $sql_2 = "UPDATE users SET active = 1, validation_code = 0 WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
+                $sql_2 = "UPDATE auth SET active = 1, validation_code = 0 WHERE email = '$esc_email' AND validation_code = '$esc_validation_code'";
                 $result_2 = query($sql_2);
                 confirm($result_2);
                 set_message("<h3>Account has been activated.</h3>");
@@ -233,7 +233,7 @@ function login_user($username, $password, $remember)
         return false;
     }
 
-    $sql = "SELECT id, password FROM users WHERE username = '$esc_username' AND active = 1 AND validation_code = 0";
+    $sql = "SELECT id, password FROM auth WHERE username = '$esc_username' AND active = 1 AND validation_code = 0";
     $result = query($sql);
     confirm($result);
     if (row_count($result) == 1) {
@@ -256,7 +256,7 @@ function login_user($username, $password, $remember)
 function login_user_profile_redirect()
 {
     if (get_logged_in()) {
-        $sql = "SELECT role FROM users WHERE username = '" . escape_sql($_SESSION['username']) . "' AND active = 1 AND validation_code = 0";
+        $sql = "SELECT role FROM auth WHERE username = '" . escape_sql($_SESSION['username']) . "' AND active = 1 AND validation_code = 0";
         $result = query($sql);
         confirm($result);
 
@@ -274,4 +274,107 @@ function login_user_profile_redirect()
             }
         }
     }
+}
+
+function validate_customer_order()
+{
+    $errors = [];
+
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        $order_date = clean($_POST['order-date']);
+        $company = clean($_POST['company']);
+        $owner = clean($_POST['owner']);
+        $item = clean($_POST['item']);
+        $quantity = clean($_POST['quantity']);
+        $weight = clean($_POST['weight']);
+        $request_shipment = clean($_POST['request-shipment']);
+        $tracking_id = clean($_POST['tracking-id']);
+        $shipment_size = clean($_POST['shipment-size']);
+        $box_count = clean($_POST['box-count']);
+        $specification = clean($_POST['specification']);
+        $checklist_quantity = clean($_POST['checklist-quantity']);
+        $userID = clean($_POST['userID']);
+
+        if (empty($order_date)) {
+            $errors[] = "<span class='server_error_message'>Order date can't be empty</span>";
+        }
+        if (empty($company)) {
+            $errors[] = "<span class='server_error_message'>Company Name can't be empty</span>";
+        }
+        if (empty($owner)) {
+            $errors[] = "<span class='server_error_message'>Owner Name can't be empty</span>";
+        }
+        if (empty($item)) {
+            $errors[] = "<span class='server_error_message'>Item Name can't be empty</span>";
+        }
+        if (empty($quantity)) {
+            $errors[] = "<span class='server_error_message'>quantity can't be empty</span>";
+        }
+        if (empty($weight)) {
+            $errors[] = "<span class='server_error_message'>weight can't be empty</span>";
+        }
+        if (empty($request_shipment)) {
+            $errors[] = "<span class='server_error_message'>Shipment request can't be empty</span>";
+        }
+        if (empty($tracking_id)) {
+            $errors[] = "<span class='server_error_message'>Tracking id can't be empty</span>";
+        }
+        if (empty($shipment_size)) {
+            $errors[] = "<span class='server_error_message'>Shipment size can't be empty</span>";
+        }
+        if (empty($box_count)) {
+            $errors[] = "<span class='server_error_message'>Box count can't be empty</span>";
+        }
+        if (empty($specification)) {
+            $errors[] = "<span class='server_error_message'>Specification can't be empty</span>";
+        }
+        if (empty($checklist_quantity)) {
+            $errors[] = "<span class='server_error_message'>Checklist quantity can't be empty</span>";
+        }
+        if (empty($userID)) {
+            $errors[] = "<span class='server_error_message'>User ID can't be empty</span>";
+        }
+
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                echo validation_errors($error);
+            }
+        } else {
+            if (insert_customer_order($userID, $order_date, $company, $owner, $item, $quantity, $weight, $request_shipment, $tracking_id, $shipment_size, $box_count, $specification, $checklist_quantity)) {
+                set_message('<div class="alert alert-success alert-dismissible fade show" role="alert"> Data was successfully inserted <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> </div>');
+            } else {
+                set_message('<div class="alert alert-warning alert-dismissible fade show" role="alert"> <strong>Error!</strong> No data was inserted or an error occurred <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> </div>');
+            }
+        }
+    }
+}
+
+function insert_customer_order($userID, $order_date, $company, $owner, $item, $quantity, $weight, $request_shipment, $tracking_id, $shipment_size, $box_count, $specification, $checklist_quantity)
+{
+
+    $esc_userID = escape_sql($userID);
+    $esc_order_date = escape_sql($order_date);
+    $esc_company = escape_sql($company);
+    $esc_owner = escape_sql($owner);
+    $esc_item = escape_sql($item);
+    $esc_quantity = escape_sql($quantity);
+    $esc_weight = escape_sql($weight);
+    $esc_request_shipment = escape_sql($request_shipment);
+    $esc_tracking_id = escape_sql($tracking_id);
+    $esc_shipment_size = escape_sql($shipment_size);
+    $esc_box_count = escape_sql($box_count);
+    $esc_specification = escape_sql($specification);
+    $esc_checklist_quantity = escape_sql($checklist_quantity);
+
+    /** validation complete, now inserting order data into DB */
+    $sql = "INSERT INTO customer (userID, order_date, company, owner, item, quantity, weight, request_shipment, tracking_id, shipment_size, box_count, specification, checklist_quantity)";
+    $sql .= " VALUES ('$esc_userID', '$esc_order_date', '$esc_company', '$esc_owner', '$esc_item', '$esc_quantity', '$esc_weight', '$esc_request_shipment', '$esc_tracking_id', '$esc_shipment_size', '$esc_box_count', '$esc_specification', '$esc_checklist_quantity')";
+    $result = query($sql);
+    confirm($result);
+    if ($result && row_effect()) {
+        return true;
+    } else {
+        return false;
+    }
+
 }

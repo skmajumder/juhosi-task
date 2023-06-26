@@ -4,6 +4,17 @@
 <!-- Nav menu -->
 <?php include('./includes/nav.php'); ?>
 
+<?php
+$sql = "SELECT id, username FROM auth WHERE role = 'customer'";
+$customers = query($sql);
+confirm($customers);
+
+$userIDs = [];
+$totalQuantityCustomers = 0;
+$totalWeightCustomers = 0;
+$totalBoxCountCustomers = 0;
+?>
+
 <?php if (get_logged_in() && $_SESSION['userRole'] === 'admin'): ?>
     <section class="section">
         <div class="container">
@@ -32,35 +43,67 @@
                             <thead>
                             <tr>
                                 <th>Item/Customer</th>
-                                <th>Customer 1</th>
-                                <th>Customer 2</th>
+                                <?php while ($row = fetch_array($customers)) : ?>
+                                    <th>
+                                        <?php
+                                        echo ucwords($row['username']);
+                                        $userIDs[] = $row['id'];
+                                        ?>
+                                    </th>
+                                <?php endwhile; ?>
                                 <th>Total</th>
                             </tr>
                             </thead>
                             <tbody>
+                            <?php ?>
                             <tr>
                                 <td>Quantity</td>
-                                <td>Customer 1 Quantity</td>
-                                <td>Customer 2 Quantity</td>
-                                <td>Total quantity of Customer 1 & 2</td>
+                                <?php
+                                foreach ($userIDs as $userID) {
+                                    $sql_2 = "SELECT SUM(quantity) AS total_quantity FROM customer WHERE userID = '$userID'";
+                                    $quantity = query($sql_2);
+                                    confirm($quantity);
+                                    $row = fetch_array($quantity);
+                                    $totalQuantity = $row['total_quantity'];
+                                    $totalQuantityCustomers += $totalQuantity;
+                                    echo "<td>$totalQuantity</td>";
+                                }
+                                ?>
+                                <td><?php echo $totalQuantityCustomers; ?></td>
                             </tr>
                             <tr>
                                 <td>Weight</td>
-                                <td>Customer 1 Weight</td>
-                                <td>Customer 2 Weight</td>
-                                <td>Total Weight of Customer 1 & 2</td>
+                                <?php
+                                foreach ($userIDs as $userID) {
+                                    $sql_2 = "SELECT SUM(weight) AS total_weight FROM customer WHERE userID = '$userID'";
+                                    $quantity = query($sql_2);
+                                    confirm($quantity);
+                                    $row = fetch_array($quantity);
+                                    $totalWeight = $row['total_weight'];
+                                    $totalWeightCustomers += $totalWeight;
+                                    echo "<td>$totalWeight</td>";
+                                }
+                                ?>
+                                <td><?php echo $totalWeightCustomers; ?></td>
                             </tr>
                             <tr>
                                 <td>Box Count</td>
-                                <td>Customer 1 Box Count</td>
-                                <td>Customer 2 Box Count</td>
-                                <td>Total Box Count of Customer 1 & 2</td>
+                                <?php
+                                foreach ($userIDs as $userID) {
+                                    $sql_2 = "SELECT SUM(box_count) AS total_box_count FROM customer WHERE userID = '$userID'";
+                                    $quantity = query($sql_2);
+                                    confirm($quantity);
+                                    $row = fetch_array($quantity);
+                                    $totalBoxCount = $row['total_box_count'];
+                                    $totalBoxCountCustomers += $totalBoxCount;
+                                    echo "<td>$totalBoxCount</td>";
+                                }
+                                ?>
+                                <td><?php echo $totalBoxCountCustomers; ?></td>
                             </tr>
-                            <!-- Add more rows as needed -->
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>

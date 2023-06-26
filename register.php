@@ -4,6 +4,13 @@
 <!-- Nav menu -->
 <?php include('includes/nav.php'); ?>
 
+<?php
+if (get_logged_in()) {
+    redirect('index.php');
+}
+?>
+
+
 <section class="section">
     <div class="container">
         <div class="row">

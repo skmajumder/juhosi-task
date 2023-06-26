@@ -239,8 +239,11 @@ function login_user($username, $password, $remember)
     if (row_count($result) == 1) {
         $row = fetch_array($result);
         $db_password = $row['password'];
+        $useID = $row['id'];
+
         if (md5($esc_password) === $db_password) {
             $_SESSION['username'] = $esc_username;
+            $_SESSION['userID'] = $useID;
             return true;
         } else {
             return false;

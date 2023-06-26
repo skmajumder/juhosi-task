@@ -13,6 +13,7 @@
                         <h1>Admin Profile</h1>
                         <p>
                             <?php
+                            display_message();
                             echo $_SESSION['username'];
                             ?>
                         </p>
